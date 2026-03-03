@@ -1,0 +1,37 @@
+{
+  "name": "mid-term-project-nitin-kamboj",
+  "version": "1.0.0",
+  "description": "[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/U9BXkgAy)",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WSU-bjoshi/mid-term-project-Nitin-kamboj.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/WSU-bjoshi/mid-term-project-Nitin-kamboj/issues"
+  },
+  "homepage": "https://github.com/WSU-bjoshi/mid-term-project-Nitin-kamboj#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mariadb": "^3.5.1",
+    "mysql2": "^3.18.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth": "^2.0.0",
+    "pg": "^8.19.0",
+    "sequelize": "^6.37.7",
+    "stripe": "^20.4.0"
+  }
+}
