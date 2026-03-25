@@ -1,19 +1,115 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ironshell from "../assets/logo.png";
-import profilePhoto from "../assets/Profile.png";
+import defaultPhoto from "../assets/profile.png";
+import { Link } from "@tanstack/react-router";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [userPhoto, setUserPhoto] = useState(defaultPhoto);
+  // const [log, setLog] = useState("Login");
   const navLinks = ["HOME", "PLANS", "ABOUT", "CONTACT"];
+  const [log, setLog] = useState(() => {
+    return localStorage.getItem("token") ? "LOGOUT" : "LOGIN";
+  });
+
+  useEffect(() => {
+    const syncAuth = () => {
+      const token = localStorage.getItem("token");
+      setLog(token ? "LOGOUT" : "LOGIN");
+    };
+
+    syncAuth();
+    window.addEventListener("storage", syncAuth); // Sync across tabs
+    window.addEventListener("auth-change", syncAuth); // Custom event for this tab
+
+    return () => {
+      window.removeEventListener("storage", syncAuth);
+      window.removeEventListener("auth-change", syncAuth);
+    };
+  }, []);
+  function setLogBtn() {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      localStorage.removeItem("token");
+      setLog("LOGIN");
+      setUserPhoto(defaultPhoto);
+    }
+  }
+
+  useEffect(() => {
+    async function fetchImage() {
+      const token = localStorage.getItem("token");
+      if (!token) return; // Don't fetch if not logged in
+
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/getProfileImage`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          // Use image_url to match your controller's response
+          if (data.image_url) {
+            setUserPhoto(data.image_url);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile image:", error);
+      }
+    }
+    fetchImage();
+  }, [log]);
+
+  async function handlePhotoChange(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setUserPhoto(previewUrl);
+
+      const formData = new FormData();
+      formData.append("image", file); // Key must be 'image' to match Multer
+
+      try {
+        const response = await fetch(
+          "http://localhost:3000/api/addProfileImage",
+          {
+            method: "POST",
+            headers: {
+              // NOTE: Do NOT set Content-Type; the browser handles it for FormData
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: formData,
+          },
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Success:", data);
+          setUserPhoto(data.url);
+        } else {
+          console.error("Upload failed");
+          setUserPhoto(defaultPhoto);
+        }
+      } catch (error) {
+        console.error("Network error:", error);
+        setUserPhoto(defaultPhoto);
+      }
+    }
+  }
 
   return (
     <header className="w-full bg-black border-b-4 border-zinc-900 sticky top-0 z-50 ">
-      <div className="max-w-7xl mx-auto flex justify-between items-center px-4">
-
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-5">
         {/* 1. LOGO SECTION */}
-        <div className="z-50 pt-5 flex">
+        <div className="z-50  flex">
           <img
-            className="w-24 md:w-32 object-contain scale-120"
+            className=" md:w-32 object-contain scale-120"
             src={ironshell}
             alt="Ironshell Gym"
           />
@@ -40,21 +136,45 @@ export function Header() {
 
         {/* 3. PROFILE & HAMBURGER */}
         <div className="flex items-center gap-4 z-50">
-
           {/* Status Pill */}
-          <div className="hidden lg:flex items-center gap-2 bg-green-300 px-4 py-1 rounded-sm skew-x-[-10deg]">
+          {/* <div className="hidden lg:flex items-center gap-2 bg-green-300 px-4 py-1 rounded-sm skew-x-[-10deg]">
             <span className="w-2 h-2 bg-black rounded-full animate-pulse"></span>
             <span className="text-[10px] font-black uppercase text-black skew-x-[10deg]">
               Live Status
             </span>
-          </div>
+          </div> */}
 
           {/* Profile Image */}
-          <img
-            className="w-10 h-10 rounded-full border-2 border-green-300 object-cover"
-            src={profilePhoto}
-            alt="User"
-          />
+          {/* Profile Image Container */}
+          <div className="relative w-10 h-10 group">
+            <img
+              className="w-full h-full rounded-full border-2 border-green-300 object-cover"
+              src={userPhoto}
+              alt="User"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              // This invisible input now sits perfectly on top of the image
+              className="absolute inset-0 opacity-0 cursor-pointer z-10"
+              title="Change Profile Photo"
+            />
+            {/* Subtle hover effect */}
+            <div className="absolute inset-0 rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          </div>
+
+          {/* Log in || Log Out button */}
+          <Link to="/login">
+            <div
+              onClick={setLogBtn}
+              className="hidden lg:flex items-center gap-2 bg-green-300 px-4 py-1 rounded-sm skew-x-[-10deg] cursor-pointer"
+            >
+              <span className="text-[10px] font-black uppercase text-black skew-x-[10deg]">
+                {log}
+              </span>
+            </div>
+          </Link>
 
           {/* Hamburger Button */}
           <button

@@ -12,17 +12,30 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RegisterLazyRouteImport = createFileRoute('/register')()
 const PlansLazyRouteImport = createFileRoute('/plans')()
+const LoginLazyRouteImport = createFileRoute('/login')()
 const ContactLazyRouteImport = createFileRoute('/contact')()
 const AboutLazyRouteImport = createFileRoute('/about')()
 
+const RegisterLazyRoute = RegisterLazyRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/register.lazy').then((d) => d.Route))
 const PlansLazyRoute = PlansLazyRouteImport.update({
   id: '/plans',
   path: '/plans',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/plans.lazy').then((d) => d.Route))
+const LoginLazyRoute = LoginLazyRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
 const ContactLazyRoute = ContactLazyRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -38,6 +51,11 @@ const HomeRoute = HomeRouteImport.update({
   path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -46,49 +64,100 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/home': typeof HomeRoute
   '/about': typeof AboutLazyRoute
   '/contact': typeof ContactLazyRoute
+  '/login': typeof LoginLazyRoute
   '/plans': typeof PlansLazyRoute
+  '/register': typeof RegisterLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/home': typeof HomeRoute
   '/about': typeof AboutLazyRoute
   '/contact': typeof ContactLazyRoute
+  '/login': typeof LoginLazyRoute
   '/plans': typeof PlansLazyRoute
+  '/register': typeof RegisterLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/home': typeof HomeRoute
   '/about': typeof AboutLazyRoute
   '/contact': typeof ContactLazyRoute
+  '/login': typeof LoginLazyRoute
   '/plans': typeof PlansLazyRoute
+  '/register': typeof RegisterLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/home' | '/about' | '/contact' | '/plans'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/home'
+    | '/about'
+    | '/contact'
+    | '/login'
+    | '/plans'
+    | '/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/home' | '/about' | '/contact' | '/plans'
-  id: '__root__' | '/' | '/home' | '/about' | '/contact' | '/plans'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/home'
+    | '/about'
+    | '/contact'
+    | '/login'
+    | '/plans'
+    | '/register'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/home'
+    | '/about'
+    | '/contact'
+    | '/login'
+    | '/plans'
+    | '/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   HomeRoute: typeof HomeRoute
   AboutLazyRoute: typeof AboutLazyRoute
   ContactLazyRoute: typeof ContactLazyRoute
+  LoginLazyRoute: typeof LoginLazyRoute
   PlansLazyRoute: typeof PlansLazyRoute
+  RegisterLazyRoute: typeof RegisterLazyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/plans': {
       id: '/plans'
       path: '/plans'
       fullPath: '/plans'
       preLoaderRoute: typeof PlansLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -112,6 +181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -124,10 +200,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   HomeRoute: HomeRoute,
   AboutLazyRoute: AboutLazyRoute,
   ContactLazyRoute: ContactLazyRoute,
+  LoginLazyRoute: LoginLazyRoute,
   PlansLazyRoute: PlansLazyRoute,
+  RegisterLazyRoute: RegisterLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
